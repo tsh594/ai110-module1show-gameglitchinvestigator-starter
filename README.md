@@ -29,7 +29,7 @@ The game is a number-guessing game where the player tries to guess a secret numb
 
 ## 📸 Demo
 
-![Screenshot of the fixed game after winning](assets/screenshot%20of%20the%20app%20after%20winning.png)
+![Screenshot of the fixed game after winning](<assets/screenshot of the app after winning.png>)
 
 ## 🚀 Stretch Features
 
