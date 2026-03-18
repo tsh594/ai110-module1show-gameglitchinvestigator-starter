@@ -31,7 +31,6 @@ def parse_guess(raw: str):
     return True, value, None
 
 
-
 def update_score(current_score: int, outcome: str, attempt_number: int):
     if outcome == "Win":
         points = 100 - 10 * (attempt_number + 1)
@@ -74,6 +73,21 @@ low, high = get_range_for_difficulty(difficulty)
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
+# STRETCH: Guess history sidebar
+if st.sidebar.checkbox("Show guess history", value=True):
+    st.sidebar.subheader("Guess History")
+    if "history_outcomes" not in st.session_state or not st.session_state.get("history_outcomes"):
+        st.sidebar.caption("No guesses yet.")
+    else:
+        for entry in st.session_state.history_outcomes:
+            g, outcome = entry
+            if outcome == "Win":
+                st.sidebar.success(f"{g} — Win!")
+            elif outcome == "Too High":
+                st.sidebar.error(f"{g} — Too High")
+            else:
+                st.sidebar.warning(f"{g} — Too Low")
+
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
@@ -89,10 +103,14 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+# STRETCH: Track (guess, outcome) pairs for the colored history sidebar
+if "history_outcomes" not in st.session_state:
+    st.session_state.history_outcomes = []
+
 st.subheader("Make a guess")
 
 st.info(
-    f"Guess a number between 1 and 100. "
+    f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
@@ -120,6 +138,7 @@ if new_game:
     st.session_state.attempts = 0
     # FIX: Use difficulty range instead of hardcoded randint(1, 100).
     st.session_state.secret = random.randint(low, high)
+    st.session_state.history_outcomes = []
     st.success("New game started.")
     st.rerun()
 
@@ -146,8 +165,17 @@ if submit:
 
         outcome, message = check_guess(guess_int, secret)
 
+        # STRETCH: Record outcome for colored history sidebar
+        st.session_state.history_outcomes.append((guess_int, outcome))
+
+        # STRETCH: Color-coded hint display (green=win, red=too high, orange=too low)
         if show_hint:
-            st.warning(message)
+            if outcome == "Win":
+                st.success(message)
+            elif outcome == "Too High":
+                st.error(message)
+            else:
+                st.warning(message)
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
