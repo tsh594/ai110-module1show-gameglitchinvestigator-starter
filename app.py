@@ -9,7 +9,7 @@ def get_range_for_difficulty(difficulty: str):
     if difficulty == "Normal":
         return 1, 100
     if difficulty == "Hard":
-        return 1, 50
+        return 1, 500
     return 1, 100
 
 
@@ -103,6 +103,15 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+# When the player switches difficulty, start a fresh game for that range.
+if st.session_state.get("last_difficulty") != difficulty:
+    st.session_state.secret = random.randint(low, high)
+    st.session_state.attempts = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
+    st.session_state.history_outcomes = []
+    st.session_state.last_difficulty = difficulty
+
 # STRETCH: Track (guess, outcome) pairs for the colored history sidebar
 if "history_outcomes" not in st.session_state:
     st.session_state.history_outcomes = []
@@ -136,9 +145,11 @@ with col3:
 
 if new_game:
     st.session_state.attempts = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
+    st.session_state.history_outcomes = []
     # FIX: Use difficulty range instead of hardcoded randint(1, 100).
     st.session_state.secret = random.randint(low, high)
-    st.session_state.history_outcomes = []
     st.success("New game started.")
     st.rerun()
 
